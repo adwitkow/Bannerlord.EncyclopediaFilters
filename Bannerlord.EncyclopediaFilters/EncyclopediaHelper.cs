@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TaleWorlds.CampaignSystem.Encyclopedia;
 using TaleWorlds.Localization;
 
@@ -20,6 +21,11 @@ namespace Bannerlord.EncyclopediaFilters
         public static EncyclopediaFilterGroup CreateFilterGroup(string name, List<EncyclopediaFilterItem> filters)
         {
             return new EncyclopediaFilterGroup(filters, new TextObject(name));
+        }
+
+        public static EncyclopediaFilterGroup CreateFilterGroup(string name, IEnumerable<EncyclopediaFilterItem> filters)
+        {
+            return new EncyclopediaFilterGroup(filters.ToList(), new TextObject(name));
         }
     }
 }

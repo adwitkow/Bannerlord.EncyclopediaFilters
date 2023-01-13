@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib.BUTR.Extensions;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encyclopedia;
@@ -8,10 +9,15 @@ using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
 namespace Bannerlord.EncyclopediaFilters.Patches
 {
-    [HarmonyPatch(typeof(DefaultEncyclopediaClanPage), "InitializeFilterItems")]
     public static class DefaultEncyclopediaClanPagePatch
     {
-        public static void Postfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
+        public static void Patch(Harmony harmony)
+        {
+            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaClanPage), "InitializeFilterItems"),
+                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaClanPagePatch), nameof(InitializeFilterItemsPostfix)));
+        }
+
+        public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
         {
             var groups = (List<EncyclopediaFilterGroup>)__result;
 

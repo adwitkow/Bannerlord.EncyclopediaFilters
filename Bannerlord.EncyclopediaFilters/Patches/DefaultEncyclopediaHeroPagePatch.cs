@@ -2,29 +2,67 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using HarmonyLib.BUTR.Extensions;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encyclopedia;
 using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
+using TaleWorlds.CampaignSystem.Extensions;
 using TaleWorlds.Core;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
 namespace Bannerlord.EncyclopediaFilters.Patches
 {
-    [HarmonyPatch(typeof(DefaultEncyclopediaHeroPage), "InitializeFilterItems")]
     public static class DefaultEncyclopediaHeroPagePatch
     {
-        public static void Postfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
+        private static readonly string[] SkillOrder = new[]
+        {
+            "OneHanded", "TwoHanded", "Polearm",
+            "Bow", "Crossbow", "Throwing",
+            "Riding", "Athletics", "Crafting",
+            "Scouting", "Tactics", "Roguery",
+            "Charm", "Leadership", "Trade",
+            "Steward", "Medicine", "Engineering"
+        };
+
+        public static void Patch(Harmony harmony)
+        {
+            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaHeroPage), "InitializeFilterItems"),
+                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaHeroPagePatch), nameof(InitializeFilterItemsPostfix)));
+            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaHeroPage), "InitializeSortControllers"),
+                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaHeroPagePatch), nameof(InitializeSortControllersPostfix)));
+        }
+
+        public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
         {
             var groups = (List<EncyclopediaFilterGroup>)__result;
 
-            AddKingdomGroup(groups);
-            AddClanLeaderOccupation(groups);
-            RemoveEmptyCultures(groups);
+            AddKingdomFilters(groups);
+            AddClanLeaderOccupationFilters(groups);
+            RemoveEmptyCultureFilters(groups);
+            AddSkillFilters(groups);
 
             __result = groups;
         }
 
-        private static void AddKingdomGroup(List<EncyclopediaFilterGroup> groups)
+        public static void InitializeSortControllersPostfix(ref IEnumerable<EncyclopediaSortController> __result)
+        {
+            var controllers = (List<EncyclopediaSortController>)__result;
+
+            AddSkillSortControllers(controllers);
+
+            __result = controllers;
+        }
+
+        private static void AddSkillSortControllers(List<EncyclopediaSortController> controllers)
+        {
+            foreach (var skill in AllSkills())
+            {
+                var controller = new EncyclopediaSortController(skill.Name, new SkillComparer(skill));
+                controllers.Add(controller);
+            }
+        }
+
+        private static void AddKingdomFilters(List<EncyclopediaFilterGroup> groups)
         {
             var kingdomFilters = Campaign.Current.Kingdoms.Where(kingdom => !kingdom.IsEliminated)
                 .Select(kingdom => CreateFilterItem<Hero>(kingdom.Name, hero => hero.Clan != null && hero.Clan.Kingdom == kingdom))
@@ -33,7 +71,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             groups.Add(kingdomGroup);
         }
 
-        private static void AddClanLeaderOccupation(List<EncyclopediaFilterGroup> groups)
+        private static void AddClanLeaderOccupationFilters(List<EncyclopediaFilterGroup> groups)
         {
             var occupationGroup = groups.FirstOrDefault(group => "Occupation".Equals(group.Name.ToString()));
             if (occupationGroup is not null)
@@ -43,7 +81,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             }
         }
 
-        private static void RemoveEmptyCultures(List<EncyclopediaFilterGroup> groups)
+        private static void RemoveEmptyCultureFilters(List<EncyclopediaFilterGroup> groups)
         {
             var cultureGroup = groups.FirstOrDefault(group => "Culture".Equals(group.Name.ToString()));
 
@@ -55,6 +93,52 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                 {
                     cultureGroup.Filters.RemoveAt(i);
                 }
+            }
+        }
+
+        private static void AddSkillFilters(List<EncyclopediaFilterGroup> groups)
+        {
+            var skillFilters = AllSkills().Reverse()
+                .Select(skill => CreateFilterItem<Hero>(skill.Name, hero => hero.GetSkillValue(skill) > 50));
+            var skillGroup = CreateFilterGroup("Skills", skillFilters);
+
+            groups.Add(skillGroup);
+        }
+
+        private static IEnumerable<SkillObject> AllSkills()
+        {
+            return Skills.All.OrderBy(skill => Array.IndexOf(SkillOrder, skill.StringId));
+        }
+
+        private sealed class SkillComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+        {
+            private readonly SkillObject skill;
+
+            public SkillComparer(SkillObject skill)
+            {
+                this.skill = skill;
+            }
+
+            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+            {
+                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => CompareSkills(hero1, hero2));
+            }
+
+            public override string GetComparedValueText(EncyclopediaListItem item)
+            {
+                var hero = item.Object as Hero;
+
+                if (hero is null)
+                {
+                    return string.Empty;
+                }
+
+                return hero.GetSkillValue(skill).ToString();
+            }
+
+            private int CompareSkills(Hero hero1, Hero hero2)
+            {
+                return hero1.GetSkillValue(skill).CompareTo(hero2.GetSkillValue(skill));
             }
         }
     }

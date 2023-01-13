@@ -1,18 +1,19 @@
 ﻿using TaleWorlds.MountAndBlade;
 using HarmonyLib;
+using Bannerlord.EncyclopediaFilters.Patches;
 
 namespace Bannerlord.EncyclopediaFilters
 {
     public class SubModule : MBSubModuleBase
     {
-        private static Harmony Harmony { get; set; } = default!;
+        private readonly Harmony _harmony = new("me.adwitkow.encyclopedia");
 
-        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        protected override void OnSubModuleLoad()
         {
-            base.OnBeforeInitialModuleScreenSetAsRoot();
+            DefaultEncyclopediaHeroPagePatch.Patch(_harmony);
+            DefaultEncyclopediaClanPagePatch.Patch(_harmony);
 
-            Harmony = new Harmony("me.adwitkow.encyclopedia");
-            Harmony.PatchAll();
+            base.OnSubModuleLoad();
         }
     }
 }
