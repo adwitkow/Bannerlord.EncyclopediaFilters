@@ -85,6 +85,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             var cultureGroup = groups.FirstOrDefault(group => "Culture".Equals(group.Name.ToString()));
 
+            if (cultureGroup is null)
+            {
+                return;
+            }
+
             for (int i = cultureGroup.Filters.Count - 1; i >= 0; i--)
             {
                 var cultureName = cultureGroup.Filters[i].Name;
