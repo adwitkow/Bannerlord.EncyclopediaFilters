@@ -126,9 +126,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
             public override string GetComparedValueText(EncyclopediaListItem item)
             {
-                var hero = item.Object as Hero;
-
-                if (hero is null)
+                if (item.Object is not Hero hero)
                 {
                     return string.Empty;
                 }
