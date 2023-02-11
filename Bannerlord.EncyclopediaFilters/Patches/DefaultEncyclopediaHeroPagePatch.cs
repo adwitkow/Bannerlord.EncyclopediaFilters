@@ -76,7 +76,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             var occupationGroup = groups.FirstOrDefault(group => "Occupation".Equals(group.Name.ToString()));
             if (occupationGroup is not null)
             {
-                var majorFilter = CreateFilterItem<Hero>("Clan Leader", hero => hero.Clan != null && hero.Clan.Leader == hero);
+                var majorFilter = CreateFilterItem<Hero>("{=pqfz386V}Clan Leader", hero => hero.Clan != null && hero.Clan.Leader == hero);
                 occupationGroup.Filters.Add(majorFilter);
             }
         }
