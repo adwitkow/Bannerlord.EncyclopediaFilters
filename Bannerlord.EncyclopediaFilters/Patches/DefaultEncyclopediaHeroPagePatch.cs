@@ -4,10 +4,14 @@ using System.Linq;
 using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Encyclopedia;
 using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 using TaleWorlds.CampaignSystem.Extensions;
+using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Core;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
 namespace Bannerlord.EncyclopediaFilters.Patches
@@ -22,6 +26,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             "Scouting", "Tactics", "Roguery",
             "Charm", "Leadership", "Trade",
             "Steward", "Medicine", "Engineering"
+        };
+
+        private static readonly int[] TraitLevels = new[]
+        {
+            0, 1, 3, 4
         };
 
         public static void Patch(Harmony harmony)
@@ -40,6 +49,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             AddClanLeaderOccupationFilters(groups);
             RemoveEmptyCultureFilters(groups);
             AddSkillFilters(groups);
+            AddTraitFilters(groups);
 
             __result = groups;
         }
@@ -110,6 +120,41 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             groups.Add(skillGroup);
         }
 
+        private static void AddTraitFilters(List<EncyclopediaFilterGroup> groups)
+        {
+            var baseHeroTraits = CampaignUIHelper.GetHeroTraits();
+
+            var allTraits = new List<TraitVariation>();
+            foreach (var trait in baseHeroTraits)
+            {
+                foreach (var traitLevel in TraitLevels)
+                {
+                    var name = GameTexts.FindText("str_trait_name_" + trait.StringId.ToLower(), traitLevel.ToString());
+                    var variation = new TraitVariation()
+                    {
+                        Underlying = trait,
+                        Name = name,
+                        Variation = traitLevel,
+                    };
+
+                    if (Hero.FindAll(hero => MatchesTrait(variation, hero)).Any())
+                    {
+                        allTraits.Add(variation);
+                    }
+                }
+            }
+
+            var traitFilters = allTraits.Select(trait => CreateFilterItem<Hero>(trait.Name, hero => MatchesTrait(trait, hero)));
+            var traitsGroup = CreateFilterGroup("{=082FNWAD}Traits", traitFilters);
+
+            groups.Add(traitsGroup);
+        }
+
+        private static bool MatchesTrait(TraitVariation trait, Hero hero)
+        {
+            return hero.GetTraitLevel(trait.Underlying) + MathF.Abs(trait.Underlying.MinValue) == trait.Variation;
+        }
+
         private static IEnumerable<SkillObject> AllSkills()
         {
             return Skills.All.OrderBy(skill => Array.IndexOf(SkillOrder, skill.StringId));
@@ -143,6 +188,15 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             {
                 return hero1.GetSkillValue(skill).CompareTo(hero2.GetSkillValue(skill));
             }
+        }
+        
+        private struct TraitVariation
+        {
+            public TraitObject Underlying { get; init; }
+
+            public TextObject Name { get; init; }
+
+            public int Variation { get; init; }
         }
     }
 }
