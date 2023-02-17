@@ -61,3 +61,9 @@ jobs:
         Copy-Item $impl/* $final;
         # Delete Implementations folder
         Remove-Item -Recurse $impl;
+
+    - name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build
+        path: ./bannerlord/
