@@ -35,7 +35,7 @@ jobs:
         $impl = $PWD.Path + '/bannerlord-implementations';
         $path = $PWD.Path + '/bannerlord';
         $final = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/';
-        $proj = 'src/Bannerlord.EncyclopediaFilters/Bannerlord.EncyclopediaFilters.csproj';
+        $proj = 'Bannerlord.EncyclopediaFilters/Bannerlord.EncyclopediaFilters.csproj';
         $pdll = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/Bannerlord.EncyclopediaFilters*.dll';
         $ppdb = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/Bannerlord.EncyclopediaFilters*.pdb';
         # The folders are required to be created before executing the script
