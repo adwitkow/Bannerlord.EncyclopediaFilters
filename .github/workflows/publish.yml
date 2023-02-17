@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+#    branches:
+#      - master
+      
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        
+      - name: Get version
+        id: version
+        uses: mavrosxristoforos/get-xml-info@1.0
+        with:
+          xml-file: 'build/common.props'
+          xpath: '//version'
+    
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+          
+      - name: Compress build
+        shell: pwsh
+        run: |
+          Compress-Archive -Path *.* -DestinationPath Release-${{ steps.getxml.outputs.info }}.zip
+          
+      - name: Tag commit
+        shell: bash
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          
+          git tag -a "${{ steps.getxml.outputs.info }}" -m "Release ${{ steps.getxml.outputs.info }}"
+          git push --tags
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.getxml.outputs.info }}
+          name: "${{ steps.getxml.outputs.info }}"
+          files: |
+            Release-${{ steps.getxml.outputs.info }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
