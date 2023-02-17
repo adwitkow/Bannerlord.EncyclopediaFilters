@@ -5,8 +5,8 @@ on:
     workflows: ["Build"]
     types:
       - completed
-#    branches:
-#      - master
+    branches:
+      - master
       
 jobs:
   publish:
@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v1
         
       - name: Get version
-        id: version
-        uses: mavrosxristoforos/get-xml-info@1.0
-        with:
-          xml-file: 'build/common.props'
-          xpath: '//Version'
+        id: get-version
+        shell: pwsh
+        run: |
+          $version = (Select-Xml -Path build/common.props -XPath //Version | Select-Object -First 1).Node.InnerXml
+          Write-Output "::set-output name=version::$version"
     
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
@@ -32,7 +32,7 @@ jobs:
       - name: Compress build
         shell: pwsh
         run: |
-          Compress-Archive -Path *.* -DestinationPath Release-${{ steps.getxml.outputs.info }}.zip
+          Compress-Archive -Path *.* -DestinationPath Release-${{ steps.get-version.outputs.version }}.zip
           
       - name: Tag commit
         shell: bash
@@ -40,15 +40,15 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           
-          git tag -a "${{ steps.getxml.outputs.info }}" -m "Release ${{ steps.getxml.outputs.info }}"
+          git tag -a "${{ steps.get-version.outputs.version }}" -m "Release ${{ steps.get-version.outputs.version }}"
           git push --tags
           
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.getxml.outputs.info }}
-          name: "${{ steps.getxml.outputs.info }}"
+          tag_name: ${{ steps.get-version.outputs.version }}
+          name: "${{ steps.get-version.outputs.version }}"
           files: |
-            Release-${{ steps.getxml.outputs.info }}.zip
+            Release-${{ steps.get-version.outputs.version }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
