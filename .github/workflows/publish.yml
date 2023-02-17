@@ -22,6 +22,7 @@ jobs:
         run: |
           $version = (Select-Xml -Path build/common.props -XPath //Version | Select-Object -First 1).Node.InnerXml
           Write-Output "::set-output name=version::$version"
+          Write-Output "::set-output name=release-name::Release $version"
     
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
@@ -33,22 +34,25 @@ jobs:
         shell: pwsh
         run: |
           Compress-Archive -Path *.* -DestinationPath Release-${{ steps.get-version.outputs.version }}.zip
-          
-      - name: Tag commit
-        shell: bash
-        run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          
-          git tag -a "${{ steps.get-version.outputs.version }}" -m "Release ${{ steps.get-version.outputs.version }}"
-          git push --tags
-          
-      - name: Release
-        uses: softprops/action-gh-release@v1
+
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
         with:
-          tag_name: ${{ steps.get-version.outputs.version }}
-          name: "${{ steps.get-version.outputs.version }}"
-          files: |
-            Release-${{ steps.get-version.outputs.version }}.zip
+          tag_name: ${{ github.ref }}
+          release_name: ${{ steps.get-version.outputs.release-name }}
+          body: ${{ steps.get-version.outputs.release-name }}
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./Release-${{ steps.get-version.outputs.version }}.zip
+          asset_name: Release-${{ steps.get-version.outputs.version }}.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
