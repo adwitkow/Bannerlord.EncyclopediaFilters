@@ -2,7 +2,7 @@
 <Module xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/BUTR/Bannerlord.XmlSchemas/master/SubModule.xsd" >
   <Id value="$modulename$" />
-  <Name value="Encyclopedia Filters Extended" />
+  <Name value="$displayname$" />
   <Version value="v$version$" />
   <DefaultModule value="false" />
   <ModuleCategory value="Singleplayer"/>
@@ -26,12 +26,15 @@
     <DependedModuleMetadata id="CustomBattle" order="LoadBeforeThis" />
   </DependedModuleMetadatas>
   <!-- Community Dependency Metadata -->
-  <SubModules>
-    <SubModule>
-      <Name value="$modulename$" />
-      <DLLName value="$modulename$.dll" />
-      <SubModuleClassType value="$modulename$.SubModule" />
-      <Tags />
-    </SubModule>
-  </SubModules>
+	<SubModules>
+		<!-- Bannerlord Module Loader. Do not change the name! -->
+		<SubModule>
+			<Name value="Bannerlord Module Loader" />
+			<DLLName value="Bannerlord.ModuleLoader.$modulename$.dll" />
+			<SubModuleClassType value="Bannerlord.ModuleLoader.Bannerlord_EncyclopediaFilters" />
+			<Tags>
+				<Tag key="LoaderFilter" value ="$modulename$.*.dll" />
+			</Tags>
+		</SubModule>
+	</SubModules>
 </Module>
