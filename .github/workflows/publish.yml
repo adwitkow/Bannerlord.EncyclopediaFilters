@@ -21,7 +21,7 @@ jobs:
         uses: mavrosxristoforos/get-xml-info@1.0
         with:
           xml-file: 'build/common.props'
-          xpath: '//version'
+          xpath: '//Version'
     
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
