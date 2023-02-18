@@ -37,7 +37,7 @@ jobs:
       - name: Compress build
         shell: pwsh
         run: |
-          Compress-Archive -Path *.* -DestinationPath Release-${{ steps.get-version.outputs.version }}.zip
+          Compress-Archive -Path Build/* -DestinationPath Release-${{ steps.get-version.outputs.version }}.zip
 
       - name: Create release
         id: create-release
