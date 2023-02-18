@@ -20,9 +20,6 @@ jobs:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
       
-      - name: List files included in the downloaded artifact
-        run: ls -R
-        
       - name: Checkout
         uses: actions/checkout@v1
         
@@ -34,6 +31,9 @@ jobs:
           Write-Output "::set-output name=version::$version"
           Write-Output "::set-output name=release-name::Release $version"
           
+      - name: List all files before compressing
+        run: ls -R
+        
       - name: Compress build
         shell: pwsh
         run: |
