@@ -6,13 +6,23 @@ on:
     types:
       - completed
     branches:
+      - master
       - 'release/**'
       
 jobs:
   publish:
     runs-on: ubuntu-latest
 
-    steps:
+    steps:    
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+      
+      - name: List files included in the downloaded artifact
+        run: ls -R
+        
       - name: Checkout
         uses: actions/checkout@v1
         
@@ -23,12 +33,6 @@ jobs:
           $version = (Select-Xml -Path build/common.props -XPath //Version | Select-Object -First 1).Node.InnerXml
           Write-Output "::set-output name=version::$version"
           Write-Output "::set-output name=release-name::Release $version"
-    
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-          workflow_conclusion: success
           
       - name: Compress build
         shell: pwsh
