@@ -34,7 +34,7 @@
         <Nullable>enable</Nullable>
         <ModuleId>Bannerlord.EncyclopediaFilters</ModuleId>
         <ModuleName>$(ModuleId)</ModuleName>
-        <DisplayName>ncyclopedia Filters Extended</DisplayName>
+        <DisplayName>Encyclopedia Filters Extended</DisplayName>
         <RootNamespace>$(DisplayName)</RootNamespace>
     </PropertyGroup>
 
