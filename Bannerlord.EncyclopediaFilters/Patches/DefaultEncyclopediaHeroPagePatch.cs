@@ -181,6 +181,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                     return string.Empty;
                 }
 
+                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
+                {
+                    return base._missingValue.ToString();
+                }
+
                 return hero.GetSkillValue(skill).ToString();
             }
 
