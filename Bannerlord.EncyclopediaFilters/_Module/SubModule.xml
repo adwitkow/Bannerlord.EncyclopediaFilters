@@ -15,6 +15,8 @@
     <DependedModule Id="StoryMode" />
     <DependedModule Id="CustomBattle" />
   </DependedModules>
+  <!-- Community Dependency Metadata -->
+  <!-- https://github.com/BUTR/Bannerlord.BUTRLoader#for-modders -->
   <DependedModuleMetadatas>
     <DependedModuleMetadata id="Bannerlord.Harmony" order="LoadBeforeThis" />
     <DependedModuleMetadata id="Native" order="LoadBeforeThis" />
@@ -23,8 +25,6 @@
     <DependedModuleMetadata id="StoryMode" order="LoadBeforeThis" />
     <DependedModuleMetadata id="CustomBattle" order="LoadBeforeThis" />
   </DependedModuleMetadatas>
-  <!-- Community Dependency Metadata -->
-  <!-- https://github.com/BUTR/Bannerlord.BUTRLoader#for-modders -->
 	<SubModules>
 		<!-- Bannerlord Module Loader. Do not change the name! -->
 		<SubModule>
