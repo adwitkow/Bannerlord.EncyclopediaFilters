@@ -25,6 +25,7 @@
     <DependedModuleMetadata id="StoryMode" order="LoadBeforeThis" />
     <DependedModuleMetadata id="CustomBattle" order="LoadBeforeThis" />
   </DependedModuleMetadatas>
+  <!-- Community Dependency Metadata -->
 	<SubModules>
 		<!-- Bannerlord Module Loader. Do not change the name! -->
 		<SubModule>
