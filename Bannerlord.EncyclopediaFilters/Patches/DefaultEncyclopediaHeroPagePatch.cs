@@ -58,9 +58,16 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             var controllers = (List<EncyclopediaSortController>)__result;
 
+            AddHeroLevelSortController(controllers);
             AddSkillSortControllers(controllers);
 
             __result = controllers;
+        }
+
+        private static void AddHeroLevelSortController(List<EncyclopediaSortController> controllers)
+        {
+            var title = GameTexts.FindText("str_level");
+            controllers.Add(new EncyclopediaSortController(title, new HeroLevelComparer()));
         }
 
         private static void AddSkillSortControllers(List<EncyclopediaSortController> controllers)
@@ -160,6 +167,31 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             return Skills.All.OrderBy(skill => Array.IndexOf(SkillOrder, skill.StringId));
         }
 
+        private sealed class HeroLevelComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+        {
+            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+            {
+                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => hero1.Level.CompareTo(hero2.Level));
+            }
+
+            public override string GetComparedValueText(EncyclopediaListItem item)
+            {
+                if (item.Object is not Hero hero)
+                {
+                    return string.Empty;
+                }
+
+#if v110
+                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
+                {
+                    return base._missingValue.ToString();
+                }
+#endif
+
+                return hero.Level.ToString();
+            }
+        }
+
         private sealed class SkillComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
         {
             private readonly SkillObject skill;
@@ -197,7 +229,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             }
         }
         
-        private struct TraitVariation
+        private readonly struct TraitVariation
         {
             public TraitObject Underlying { get; init; }
 
