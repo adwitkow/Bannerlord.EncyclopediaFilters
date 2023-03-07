@@ -46,7 +46,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             var groups = (List<EncyclopediaFilterGroup>)__result;
 
             AddKingdomFilters(groups);
-            AddClanLeaderOccupationFilters(groups);
+            AddClanLeaderOccupationFilter(groups);
             RemoveEmptyCultureFilters(groups);
             AddSkillFilters(groups);
             AddTraitFilters(groups);
@@ -58,9 +58,16 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             var controllers = (List<EncyclopediaSortController>)__result;
 
+            AddHeroLevelSortController(controllers);
             AddSkillSortControllers(controllers);
 
             __result = controllers;
+        }
+
+        private static void AddHeroLevelSortController(List<EncyclopediaSortController> controllers)
+        {
+            var title = GameTexts.FindText("str_level");
+            controllers.Add(new EncyclopediaSortController(title, new HeroLevelComparer()));
         }
 
         private static void AddSkillSortControllers(List<EncyclopediaSortController> controllers)
@@ -77,23 +84,27 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             var kingdomFilters = Campaign.Current.Kingdoms.Where(kingdom => !kingdom.IsEliminated)
                 .Select(kingdom => CreateFilterItem<Hero>(kingdom.Name, hero => hero.Clan != null && hero.Clan.Kingdom == kingdom))
                 .ToList();
-            var kingdomGroup = CreateFilterGroup("Kingdom", kingdomFilters);
+            var kingdomTextObject = GameTexts.FindText("str_kingdom");
+            var kingdomGroup = CreateFilterGroup(kingdomTextObject, kingdomFilters);
             groups.Add(kingdomGroup);
         }
 
-        private static void AddClanLeaderOccupationFilters(List<EncyclopediaFilterGroup> groups)
+        private static void AddClanLeaderOccupationFilter(List<EncyclopediaFilterGroup> groups)
         {
-            var occupationGroup = groups.FirstOrDefault(group => "Occupation".Equals(group.Name.ToString()));
+            var occupationTextObject = new TextObject("{=GZxFIeiJ}Occupation");
+            var occupationGroup = groups.FirstOrDefault(group => group.Name.HasSameValue(occupationTextObject));
             if (occupationGroup is not null)
             {
-                var majorFilter = CreateFilterItem<Hero>("{=pqfz386V}Clan Leader", hero => hero.Clan != null && hero.Clan.Leader == hero);
+                var clanLeaderTextObject = GameTexts.FindText("role", "ClanLeader");
+                var majorFilter = CreateFilterItem<Hero>(clanLeaderTextObject, hero => hero.Clan != null && hero.Clan.Leader == hero);
                 occupationGroup.Filters.Add(majorFilter);
             }
         }
 
         private static void RemoveEmptyCultureFilters(List<EncyclopediaFilterGroup> groups)
         {
-            var cultureGroup = groups.FirstOrDefault(group => "Culture".Equals(group.Name.ToString()));
+            var cultureTextObject = GameTexts.FindText("str_culture");
+            var cultureGroup = groups.FirstOrDefault(group => group.Name.HasSameValue(cultureTextObject));
 
             if (cultureGroup is null)
             {
@@ -113,9 +124,10 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
         private static void AddSkillFilters(List<EncyclopediaFilterGroup> groups)
         {
+            var skillsTextObject = GameTexts.FindText("str_skills");
             var skillFilters = AllSkills().Reverse()
                 .Select(skill => CreateFilterItem<Hero>(skill.Name, hero => hero.GetSkillValue(skill) > 50));
-            var skillGroup = CreateFilterGroup("Skills", skillFilters);
+            var skillGroup = CreateFilterGroup(skillsTextObject, skillFilters);
 
             groups.Add(skillGroup);
         }
@@ -145,7 +157,8 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             }
 
             var traitFilters = allTraits.Select(trait => CreateFilterItem<Hero>(trait.Name, hero => MatchesTrait(trait, hero)));
-            var traitsGroup = CreateFilterGroup("{=082FNWAD}Traits", traitFilters);
+            var traitsTextObject = GameTexts.FindText("str_traits_group");
+            var traitsGroup = CreateFilterGroup(traitsTextObject, traitFilters);
 
             groups.Add(traitsGroup);
         }
@@ -158,6 +171,31 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         private static IEnumerable<SkillObject> AllSkills()
         {
             return Skills.All.OrderBy(skill => Array.IndexOf(SkillOrder, skill.StringId));
+        }
+
+        private sealed class HeroLevelComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+        {
+            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+            {
+                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => hero1.Level.CompareTo(hero2.Level));
+            }
+
+            public override string GetComparedValueText(EncyclopediaListItem item)
+            {
+                if (item.Object is not Hero hero)
+                {
+                    return string.Empty;
+                }
+
+#if v110
+                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
+                {
+                    return base._missingValue.ToString();
+                }
+#endif
+
+                return hero.Level.ToString();
+            }
         }
 
         private sealed class SkillComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
@@ -197,7 +235,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             }
         }
         
-        private struct TraitVariation
+        private readonly struct TraitVariation
         {
             public TraitObject Underlying { get; init; }
 

@@ -9,11 +9,10 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Localization;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
-using TaleWorlds.CampaignSystem.Extensions;
 
 namespace Bannerlord.EncyclopediaFilters.Patches
 {
-    public class DefaultEncyclopediaUnitPagePatch
+    public static class DefaultEncyclopediaUnitPagePatch
     {
         public static void Patch(Harmony harmony)
         {
@@ -48,9 +47,10 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                 var type = pair.Key;
                 var textObject = pair.Value;
                 return CreateFilterItem<CharacterObject>(textObject, troop => troop.Equipment.HasWeaponOfClass(type));
-            });
+            }).Reverse();
 
-            groups.Add(CreateFilterGroup("{=2RIyK1bp}Weapons", weaponTypeFilters));
+            var weaponFilterGroupname = GameTexts.FindText("str_inventory_category_tooltip", 3.ToString());
+            groups.Add(CreateFilterGroup(weaponFilterGroupname, weaponTypeFilters));
         }
 
         private static TextObject GetWeaponTypeTranslation(WeaponClass type)
