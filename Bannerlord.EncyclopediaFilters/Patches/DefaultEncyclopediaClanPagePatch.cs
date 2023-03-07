@@ -6,6 +6,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encyclopedia;
 using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
+using TaleWorlds.Core;
 
 namespace Bannerlord.EncyclopediaFilters.Patches
 {
@@ -33,23 +34,27 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             var kingdomFilters = Campaign.Current.Kingdoms.Where(kingdom => !kingdom.IsEliminated)
                 .Select(kingdom => CreateFilterItem<Clan>(kingdom.Name, clan => clan.Kingdom == kingdom))
                 .ToList();
-            var kingdomGroup = CreateFilterGroup("Kingdom", kingdomFilters);
+            var kingdomTextObject = GameTexts.FindText("str_kingdom");
+            var kingdomGroup = CreateFilterGroup(kingdomTextObject, kingdomFilters);
             groups.Add(kingdomGroup);
         }
 
         private static void AddMajorToTypeGroup(List<EncyclopediaFilterGroup> groups)
         {
-            var typeGroup = groups.FirstOrDefault(group => "Type".Equals(group.Name.ToString()));
+            var typeTextObject = GameTexts.FindText("str_sort_by_type_label");
+            var typeGroup = groups.FirstOrDefault(group => group.Name.HasSameValue(typeTextObject));
             if (typeGroup is not null)
             {
-                var majorFilter = CreateFilterItem<IFaction>("Major", faction => !faction.IsMinorFaction);
+                var nobleTextObject = GameTexts.FindText("str_noble");
+                var majorFilter = CreateFilterItem<IFaction>(nobleTextObject, faction => !faction.IsMinorFaction);
                 typeGroup.Filters.Add(majorFilter);
             }
         }
 
         private static void RemoveCultureGroup(List<EncyclopediaFilterGroup> groups)
         {
-            var cultureGroup = groups.FirstOrDefault(group => "Culture".Equals(group.Name.ToString()));
+            var cultureTextObject = GameTexts.FindText("str_culture");
+            var cultureGroup = groups.FirstOrDefault(group => group.Name.HasSameValue(cultureTextObject));
             if (cultureGroup is not null)
             {
                 groups.Remove(cultureGroup);

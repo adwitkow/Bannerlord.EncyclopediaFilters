@@ -18,14 +18,24 @@ namespace Bannerlord.EncyclopediaFilters
             return CreateFilterItem(new TextObject(name), selector);
         }
 
+        public static EncyclopediaFilterGroup CreateFilterGroup(TextObject textObject, List<EncyclopediaFilterItem> filters)
+        {
+            return new EncyclopediaFilterGroup(filters, textObject);
+        }
+
+        public static EncyclopediaFilterGroup CreateFilterGroup(TextObject textObject, IEnumerable<EncyclopediaFilterItem> filters)
+        {
+            return new EncyclopediaFilterGroup(filters.ToList(), textObject);
+        }
+
         public static EncyclopediaFilterGroup CreateFilterGroup(string name, List<EncyclopediaFilterItem> filters)
         {
-            return new EncyclopediaFilterGroup(filters, new TextObject(name));
+            return CreateFilterGroup(new TextObject(name), filters);
         }
 
         public static EncyclopediaFilterGroup CreateFilterGroup(string name, IEnumerable<EncyclopediaFilterItem> filters)
         {
-            return new EncyclopediaFilterGroup(filters.ToList(), new TextObject(name));
+            return CreateFilterGroup(new TextObject(name), filters);
         }
     }
 }
