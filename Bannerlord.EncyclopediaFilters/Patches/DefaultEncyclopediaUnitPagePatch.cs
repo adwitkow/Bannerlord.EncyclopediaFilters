@@ -47,7 +47,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                 var type = pair.Key;
                 var textObject = pair.Value;
                 return CreateFilterItem<CharacterObject>(textObject, troop => troop.Equipment.HasWeaponOfClass(type));
-            });
+            }).Reverse();
 
             var weaponFilterGroupname = GameTexts.FindText("str_inventory_category_tooltip", 3.ToString());
             groups.Add(CreateFilterGroup(weaponFilterGroupname, weaponTypeFilters));
