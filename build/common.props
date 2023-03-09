@@ -2,7 +2,7 @@
 
     <!--Module Version-->
     <PropertyGroup>
-        <Version>1.0.7.0</Version>
+        <Version>1.0.7.1</Version>
         <GameVersion>1.0.0</GameVersion>
     </PropertyGroup>
 
@@ -25,7 +25,7 @@
         <!--ModuleLoader Version-->
         <BUTRModuleLoaderVersion>1.0.1.44</BUTRModuleLoaderVersion>
         <!--Harmony Extensions Version-->
-        <HarmonyExtensionsVersion>3.2.0.75</HarmonyExtensionsVersion>
+        <HarmonyExtensionsVersion>3.2.0.77</HarmonyExtensionsVersion>
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
