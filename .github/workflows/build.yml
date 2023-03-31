@@ -54,12 +54,12 @@ jobs:
     - name: Build Module
       shell: pwsh
       run: |
-        $impl = $PWD.Path + '/bannerlord-implementations';
-        $path = $PWD.Path + '/bannerlord';
-        $final = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/';
-        $proj = '$env:REPO_NAME/$env:REPO_NAME.csproj';
-        $pdll = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.dll';
-        $ppdb = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.pdb';
+        $impl = $PWD.Path + "/bannerlord-implementations";
+        $path = $PWD.Path + "/bannerlord";
+        $final = $path + "/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/";
+        $proj = "$env:REPO_NAME/$env:REPO_NAME.csproj";
+        $pdll = $path + "/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.dll";
+        $ppdb = $path + "/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.pdb";
         # The folders are required to be created before executing the script
         New-Item -ItemType directory -Force -Path $impl;
         New-Item -ItemType directory -Force -Path $path;
