@@ -7,16 +7,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bannerlord.EncyclopediaFilt
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{50961B91-6F7F-4016-A966-3F257F5E16F4}"
 	ProjectSection(SolutionItems) = preProject
-		build\common.props = build\common.props
-		build\common.targets = build\common.targets
-		LICENSE.md = LICENSE.md
 		supported-game-versions.txt = supported-game-versions.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Workflows", "GitHub Workflows", "{F4A97964-1B02-4C9E-9ADC-936053115354}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F4A97964-1B02-4C9E-9ADC-936053115354}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{C060B05F-F97C-486A-95B4-751EA958D7F9}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{28E803B9-18A9-4FBD-8BC9-59147A356E53}"
+	ProjectSection(SolutionItems) = preProject
+		build\common.props = build\common.props
+		build\common.targets = build\common.targets
 	EndProjectSection
 EndProject
 Global
@@ -34,7 +39,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F4A97964-1B02-4C9E-9ADC-936053115354} = {50961B91-6F7F-4016-A966-3F257F5E16F4}
+		{C060B05F-F97C-486A-95B4-751EA958D7F9} = {F4A97964-1B02-4C9E-9ADC-936053115354}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F50C8E5-6B90-446C-BCC9-A95BEE394193}
