@@ -56,10 +56,10 @@ jobs:
       run: |
         $impl = $PWD.Path + '/bannerlord-implementations';
         $path = $PWD.Path + '/bannerlord';
-        $final = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/';
-        $proj = 'Bannerlord.EncyclopediaFilters/Bannerlord.EncyclopediaFilters.csproj';
-        $pdll = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/Bannerlord.EncyclopediaFilters*.dll';
-        $ppdb = $path + '/Modules/Bannerlord.EncyclopediaFilters/bin/Win64_Shipping_Client/Bannerlord.EncyclopediaFilters*.pdb';
+        $final = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/';
+        $proj = '$env:REPO_NAME/$env:REPO_NAME.csproj';
+        $pdll = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.dll';
+        $ppdb = $path + '/Modules/$env:REPO_NAME/bin/Win64_Shipping_Client/$env:REPO_NAME*.pdb';
         # The folders are required to be created before executing the script
         New-Item -ItemType directory -Force -Path $impl;
         New-Item -ItemType directory -Force -Path $path;
