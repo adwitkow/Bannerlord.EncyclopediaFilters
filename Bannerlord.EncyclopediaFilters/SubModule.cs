@@ -13,6 +13,7 @@ namespace Bannerlord.EncyclopediaFilters
             DefaultEncyclopediaHeroPagePatch.Patch(_harmony);
             DefaultEncyclopediaClanPagePatch.Patch(_harmony);
             DefaultEncyclopediaUnitPagePatch.Patch(_harmony);
+            DefaultEncyclopediaSettlementPagePatch.Patch(_harmony);
 
             base.OnSubModuleLoad();
         }
