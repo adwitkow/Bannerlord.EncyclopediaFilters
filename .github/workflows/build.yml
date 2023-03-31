@@ -22,6 +22,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: Get repo name
+      id: get-repo-name
+      run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
     - name: Checkout Repository
       uses: actions/checkout@v3
 
@@ -30,6 +34,23 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+    - name: Update verison in common.props
+      shell: pwsh
+      run: |
+        $branch = $env:GITHUB_REF.replace('refs/heads/', '')
+        if ($branch -match 'release\/(\d\.?){3,4}') {
+          $version = $branch.Split('/')[-1]
+          $path = 'build/common.props'
+          $xml = New-Object XML
+          $xml.Load($path)
+          $versionElement =  $xml.SelectSingleNode("//Version")
+          $versionElement.InnerText = $version
+          $xml.Save($path)
+          Write-Output "Modified common.props to build with version ${version}"
+        } else {
+          Write-Output 'No need to modify common.props version - this is not a release'
+        }
+        
     - name: Build Module
       shell: pwsh
       run: |
