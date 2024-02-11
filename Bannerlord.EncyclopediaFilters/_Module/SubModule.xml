@@ -8,12 +8,12 @@
   <ModuleCategory value="Singleplayer"/>
   <ModuleType value="Community" />
   <DependedModules>
-    <DependedModule Id="Bannerlord.Harmony" />
+    <DependedModule Id="Bannerlord.Harmony" DependentVersion="v$harmonyversion$" />
   </DependedModules>
   <!-- Community Dependency Metadata -->
   <!-- https://github.com/BUTR/Bannerlord.BUTRLoader#for-modders -->
   <DependedModuleMetadatas>
-    <DependedModuleMetadata id="Bannerlord.Harmony" order="LoadBeforeThis" />
+    <DependedModuleMetadata id="Bannerlord.Harmony" order="LoadBeforeThis" version="v$harmonyversion$" />
   </DependedModuleMetadatas>
   <!-- Community Dependency Metadata -->
 	<SubModules>
