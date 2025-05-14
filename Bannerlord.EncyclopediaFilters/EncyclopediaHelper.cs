@@ -28,12 +28,22 @@ namespace Bannerlord.EncyclopediaFilters
             return new EncyclopediaFilterGroup(filters.ToList(), textObject);
         }
 
+        public static EncyclopediaFilterGroup CreateFilterGroup(TextObject textObject, params EncyclopediaFilterItem[] filters)
+        {
+            return new EncyclopediaFilterGroup(filters.ToList(), textObject);
+        }
+
         public static EncyclopediaFilterGroup CreateFilterGroup(string name, List<EncyclopediaFilterItem> filters)
         {
             return CreateFilterGroup(new TextObject(name), filters);
         }
 
         public static EncyclopediaFilterGroup CreateFilterGroup(string name, IEnumerable<EncyclopediaFilterItem> filters)
+        {
+            return CreateFilterGroup(new TextObject(name), filters);
+        }
+
+        public static EncyclopediaFilterGroup CreateFilterGroup(string name, params EncyclopediaFilterItem[] filters)
         {
             return CreateFilterGroup(new TextObject(name), filters);
         }

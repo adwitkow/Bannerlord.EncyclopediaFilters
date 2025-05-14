@@ -26,8 +26,19 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
             RemoveEmptyCultureFilters(groups);
             AddKingdomGroup(groups);
+            AddVisitedSettlements(groups);
 
             __result = groups;
+        }
+
+
+        private static void AddVisitedSettlements(List<EncyclopediaFilterGroup> groups)
+        {
+            var visitedFilter = CreateFilterItem<Settlement>("{=aeouhelq}Yes", settlement => settlement.HasVisited);
+            var notVisitedFilter = CreateFilterItem<Settlement>("{=8OkPHu4f}No", settlement => !settlement.HasVisited);
+            var visitedGroup = CreateFilterGroup("{=r2y3n7dR}Visited Settlements", notVisitedFilter, visitedFilter);
+
+            groups.Add(visitedGroup);
         }
 
         private static void RemoveEmptyCultureFilters(List<EncyclopediaFilterGroup> groups)
