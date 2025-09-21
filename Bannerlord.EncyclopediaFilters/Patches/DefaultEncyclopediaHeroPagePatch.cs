@@ -187,7 +187,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                     return string.Empty;
                 }
 
-#if !v100 && !v101 && !v102 && !v103
+#if !LOWER_THAN_1_1
                 if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
                 {
                     return base._missingValue.ToString();
@@ -219,7 +219,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                     return string.Empty;
                 }
 
-#if !v100 && !v101 && !v102 && !v103
+#if !LOWER_THAN_1_1
                 if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
                 {
                     return base._missingValue.ToString();
