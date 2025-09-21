@@ -55,7 +55,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
         private static TextObject GetWeaponTypeTranslation(WeaponClass type)
         {
+#if LOWER_THAN_1_3
             return GameTexts.FindText("str_inventory_weapon", ((int)type).ToString());
+#else
+            return GameTexts.FindText("str_inventory_weapon", type.ToString());
+#endif
         }
 
         private static ISet<WeaponClass> FindValidWeaponTypes(DefaultEncyclopediaUnitPage instance, ICollection<WeaponClass> weaponTypes)
