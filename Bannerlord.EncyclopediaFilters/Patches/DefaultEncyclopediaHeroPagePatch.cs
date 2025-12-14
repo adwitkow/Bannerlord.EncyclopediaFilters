@@ -59,6 +59,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             var controllers = (List<EncyclopediaSortController>)__result;
 
             AddHeroLevelSortController(controllers);
+            AddDeathDaySortController(controllers);
             AddSkillSortControllers(controllers);
 
             __result = controllers;
@@ -77,6 +78,12 @@ namespace Bannerlord.EncyclopediaFilters.Patches
                 var controller = new EncyclopediaSortController(skill.Name, new SkillComparer(skill));
                 controllers.Add(controller);
             }
+        }
+
+        private static void AddDeathDaySortController(List<EncyclopediaSortController> controllers)
+        {
+            var title = new TextObject("{=W73My5KO}Death");
+            controllers.Add(new EncyclopediaSortController(title, new DeathDayComparer()));
         }
 
         private static void AddKingdomFilters(List<EncyclopediaFilterGroup> groups)
@@ -184,7 +191,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             {
                 if (item.Object is not Hero hero)
                 {
-                    return string.Empty;
+                    return base._emptyValue.ToString();
                 }
 
 #if !LOWER_THAN_1_1
@@ -216,7 +223,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             {
                 if (item.Object is not Hero hero)
                 {
-                    return string.Empty;
+                    return base._emptyValue.ToString();
                 }
 
 #if !LOWER_THAN_1_1
@@ -232,6 +239,36 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             private int CompareSkills(Hero hero1, Hero hero2)
             {
                 return hero1.GetSkillValue(skill).CompareTo(hero2.GetSkillValue(skill));
+            }
+        }
+
+        private sealed class DeathDayComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+        {
+            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+            {
+                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => hero1.DeathDay.CompareTo(hero2.DeathDay));
+            }
+
+            public override string GetComparedValueText(EncyclopediaListItem item)
+            {
+                if (item.Object is not Hero hero)
+                {
+                    return base._emptyValue.ToString();
+                }
+
+#if !LOWER_THAN_1_1
+                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
+                {
+                    return base._missingValue.ToString();
+                }
+#endif
+
+                if (hero.IsAlive)
+                {
+                    return base._emptyValue.ToString();
+                }
+
+                return hero.DeathDay.ToString();
             }
         }
         
