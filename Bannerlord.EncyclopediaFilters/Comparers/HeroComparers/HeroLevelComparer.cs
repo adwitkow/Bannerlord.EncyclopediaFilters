@@ -1,30 +1,16 @@
 ﻿using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Encyclopedia;
-using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 
 namespace Bannerlord.EncyclopediaFilters.Comparers.HeroComparers
 {
-    public sealed class HeroLevelComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+    public sealed class HeroLevelComparer : HeroComparerBase
     {
-        public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+        protected override int CompareHeroes(Hero left, Hero right)
         {
-            return CompareHeroes(x, y, (hero1, hero2) => hero1.Level.CompareTo(hero2.Level));
+            return left.Level.CompareTo(right.Level);
         }
 
-        public override string GetComparedValueText(EncyclopediaListItem item)
+        protected override string GetComparedValueText(Hero hero)
         {
-            if (item.Object is not Hero hero)
-            {
-                return _emptyValue.ToString();
-            }
-
-#if !LOWER_THAN_1_1
-            if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
-            {
-                return _missingValue.ToString();
-            }
-#endif
-
             return hero.Level.ToString();
         }
     }

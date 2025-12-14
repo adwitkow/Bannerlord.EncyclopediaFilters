@@ -1,30 +1,16 @@
 ﻿using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Encyclopedia;
-using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 
 namespace Bannerlord.EncyclopediaFilters.Comparers.HeroComparers
 {
-    public sealed class HeroDeathDayComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
+    public sealed class HeroDeathDayComparer : HeroComparerBase
     {
-        public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+        protected override int CompareHeroes(Hero left, Hero right)
         {
-            return CompareHeroes(x, y, (hero1, hero2) => hero1.DeathDay.CompareTo(hero2.DeathDay));
+            return left.DeathDay.CompareTo(right.DeathDay);
         }
 
-        public override string GetComparedValueText(EncyclopediaListItem item)
+        protected override string GetComparedValueText(Hero hero)
         {
-            if (item.Object is not Hero hero)
-            {
-                return _emptyValue.ToString();
-            }
-
-#if !LOWER_THAN_1_1
-            if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
-            {
-                return _missingValue.ToString();
-            }
-#endif
-
             if (hero.IsAlive)
             {
                 return _emptyValue.ToString();
