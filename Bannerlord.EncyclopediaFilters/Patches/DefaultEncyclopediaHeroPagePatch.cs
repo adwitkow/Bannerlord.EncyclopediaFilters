@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
 using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
 using TaleWorlds.CampaignSystem;
@@ -75,7 +76,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             foreach (var skill in AllSkills())
             {
-                var controller = new EncyclopediaSortController(skill.Name, new SkillComparer(skill));
+                var controller = new EncyclopediaSortController(skill.Name, new HeroSkillComparer(skill));
                 controllers.Add(controller);
             }
         }
@@ -83,7 +84,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         private static void AddDeathDaySortController(List<EncyclopediaSortController> controllers)
         {
             var title = new TextObject("{=W73My5KO}Death");
-            controllers.Add(new EncyclopediaSortController(title, new DeathDayComparer()));
+            controllers.Add(new EncyclopediaSortController(title, new HeroDeathDayComparer()));
         }
 
         private static void AddKingdomFilters(List<EncyclopediaFilterGroup> groups)
@@ -178,98 +179,6 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         private static IEnumerable<SkillObject> AllSkills()
         {
             return Skills.All.OrderBy(skill => Array.IndexOf(SkillOrder, skill.StringId));
-        }
-
-        private sealed class HeroLevelComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
-        {
-            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
-            {
-                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => hero1.Level.CompareTo(hero2.Level));
-            }
-
-            public override string GetComparedValueText(EncyclopediaListItem item)
-            {
-                if (item.Object is not Hero hero)
-                {
-                    return base._emptyValue.ToString();
-                }
-
-#if !LOWER_THAN_1_1
-                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
-                {
-                    return base._missingValue.ToString();
-                }
-#endif
-
-                return hero.Level.ToString();
-            }
-        }
-
-        private sealed class SkillComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
-        {
-            private readonly SkillObject skill;
-
-            public SkillComparer(SkillObject skill)
-            {
-                this.skill = skill;
-            }
-
-            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
-            {
-                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => CompareSkills(hero1, hero2));
-            }
-
-            public override string GetComparedValueText(EncyclopediaListItem item)
-            {
-                if (item.Object is not Hero hero)
-                {
-                    return base._emptyValue.ToString();
-                }
-
-#if !LOWER_THAN_1_1
-                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
-                {
-                    return base._missingValue.ToString();
-                }
-#endif
-
-                return hero.GetSkillValue(skill).ToString();
-            }
-
-            private int CompareSkills(Hero hero1, Hero hero2)
-            {
-                return hero1.GetSkillValue(skill).CompareTo(hero2.GetSkillValue(skill));
-            }
-        }
-
-        private sealed class DeathDayComparer : DefaultEncyclopediaHeroPage.EncyclopediaListHeroComparer
-        {
-            public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
-            {
-                return base.CompareHeroes(x, y, (Hero hero1, Hero hero2) => hero1.DeathDay.CompareTo(hero2.DeathDay));
-            }
-
-            public override string GetComparedValueText(EncyclopediaListItem item)
-            {
-                if (item.Object is not Hero hero)
-                {
-                    return base._emptyValue.ToString();
-                }
-
-#if !LOWER_THAN_1_1
-                if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(hero))
-                {
-                    return base._missingValue.ToString();
-                }
-#endif
-
-                if (hero.IsAlive)
-                {
-                    return base._emptyValue.ToString();
-                }
-
-                return hero.DeathDay.ToString();
-            }
         }
         
         private readonly struct TraitVariation
