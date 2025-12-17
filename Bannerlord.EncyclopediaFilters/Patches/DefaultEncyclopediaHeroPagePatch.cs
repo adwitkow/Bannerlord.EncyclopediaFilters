@@ -61,6 +61,7 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
             AddHeroLevelSortController(controllers);
             AddDeathDaySortController(controllers);
+            AddHeroDistanceSortController(controllers);
             AddSkillSortControllers(controllers);
 
             __result = controllers;
@@ -85,6 +86,12 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             var title = new TextObject("{=W73My5KO}Death");
             controllers.Add(new EncyclopediaSortController(title, new HeroDeathDayComparer()));
+        }
+
+        private static void AddHeroDistanceSortController(List<EncyclopediaSortController> controllers)
+        {
+            var title = GameTexts.FindText("str_distance");
+            controllers.Add(new EncyclopediaSortController(title, new HeroDistanceComparer()));
         }
 
         private static void AddKingdomFilters(List<EncyclopediaFilterGroup> groups)
