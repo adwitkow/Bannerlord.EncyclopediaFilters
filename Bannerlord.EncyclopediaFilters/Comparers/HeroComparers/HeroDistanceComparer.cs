@@ -36,7 +36,7 @@ namespace Bannerlord.EncyclopediaFilters.Comparers.HeroComparers
 
         private static float CalculateDistanceSquaredToMain(MobileParty party)
         {
-            return party.Position.DistanceSquared(Hero.MainHero.PartyBelongedTo.Position);
+            return party.GetPosition2D.DistanceSquared(Hero.MainHero.PartyBelongedTo.GetPosition2D);
         }
 
         private bool CompareNullability<T>(T left, T right, out int comparisonResult)
