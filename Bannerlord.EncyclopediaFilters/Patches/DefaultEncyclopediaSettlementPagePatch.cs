@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib.BUTR.Extensions;
+﻿using Bannerlord.EncyclopediaFilters.Comparers.SettlementComparers;
 using HarmonyLib;
-using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
-using TaleWorlds.CampaignSystem.Encyclopedia;
+using HarmonyLib.BUTR.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.Core;
+using TaleWorlds.CampaignSystem.Encyclopedia;
+using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
@@ -18,6 +19,8 @@ namespace Bannerlord.EncyclopediaFilters.Patches
         {
             harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPage), "InitializeFilterItems"),
                 postfix: AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPagePatch), nameof(InitializeFilterItemsPostfix)));
+            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPage), "InitializeSortControllers"),
+                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPagePatch), nameof(InitializeSortControllersPostfix)));
         }
 
         public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
@@ -31,6 +34,20 @@ namespace Bannerlord.EncyclopediaFilters.Patches
             __result = groups;
         }
 
+        public static void InitializeSortControllersPostfix(ref IEnumerable<EncyclopediaSortController> __result)
+        {
+            var controllers = (List<EncyclopediaSortController>)__result;
+
+            AddVillagePrimaryProductionSortController(controllers);
+
+            __result = controllers;
+        }
+
+        private static void AddVillagePrimaryProductionSortController(List<EncyclopediaSortController> controllers)
+        {
+            var title = GameTexts.FindText("str_primary_production");
+            controllers.Add(new EncyclopediaSortController(title, new VillagePrimaryProductionComparer()));
+        }
 
         private static void AddVisitedSettlements(List<EncyclopediaFilterGroup> groups)
         {
