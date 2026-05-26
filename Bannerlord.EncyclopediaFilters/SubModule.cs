@@ -8,7 +8,7 @@ namespace Bannerlord.EncyclopediaFilters
     {
         private readonly Harmony _harmony = new("me.adwitkow.encyclopedia");
 
-        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        protected override void OnSubModuleLoad()
         {
             DefaultEncyclopediaHeroPagePatch.Patch(_harmony);
             DefaultEncyclopediaClanPagePatch.Patch(_harmony);
