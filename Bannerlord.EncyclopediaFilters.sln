@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32922.545
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11828.311 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bannerlord.EncyclopediaFilters", "Bannerlord.EncyclopediaFilters\Bannerlord.EncyclopediaFilters.csproj", "{F02197F7-FC9D-4F8D-9156-8D3584A28D90}"
 EndProject
@@ -20,8 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{28E803B9-18A9-4FBD-8BC9-59147A356E53}"
 	ProjectSection(SolutionItems) = preProject
-		build\common.props = build\common.props
-		build\common.targets = build\common.targets
+		build\BuildResources.props = build\BuildResources.props
+		build\BuildResources.targets = build\BuildResources.targets
 	EndProjectSection
 EndProject
 Global
@@ -30,8 +30,8 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Debug|x64.ActiveCfg = Beta_Debug|x64
-		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Debug|x64.Build.0 = Beta_Debug|x64
+		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Debug|x64.ActiveCfg = Debug|x64
+		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Debug|x64.Build.0 = Debug|x64
 		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Release|x64.ActiveCfg = Beta_Release|x64
 		{F02197F7-FC9D-4F8D-9156-8D3584A28D90}.Release|x64.Build.0 = Beta_Release|x64
 	EndGlobalSection

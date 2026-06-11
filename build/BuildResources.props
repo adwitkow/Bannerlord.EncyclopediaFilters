@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <ModuleId>Bannerlord.EncyclopediaFilters</ModuleId>
+    <ModuleName>Encyclopedia Filters Extended</ModuleName>
+  </PropertyGroup>
+
+</Project>
