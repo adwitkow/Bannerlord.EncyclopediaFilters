@@ -24,9 +24,11 @@ public static class TooltipRefresherCollectionPatch
 
     public static void Patch(Harmony harmony)
     {
+#if !LOWER_THAN_1_3
         harmony.Patch()
             .Method(() => TooltipRefresherCollection.RefreshClanTooltip(default, default))
                 .Transpiler(RefreshClanTooltipTranspiler);
+#endif
     }
 
     private static IEnumerable<CodeInstruction> RefreshClanTooltipTranspiler(
