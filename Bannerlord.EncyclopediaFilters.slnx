@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/.github/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/publish.yml" />
+  </Folder>
+  <Folder Name="/build/">
+    <File Path="build/BuildResources.props" />
+    <File Path="build/BuildResources.targets" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="supported-game-versions.txt" />
+  </Folder>
+  <Project Path="Bannerlord.EncyclopediaFilters/Bannerlord.EncyclopediaFilters.csproj">
+    <BuildType Project="Debug" />
+    <Platform Project="x64" />
+  </Project>
+</Solution>
