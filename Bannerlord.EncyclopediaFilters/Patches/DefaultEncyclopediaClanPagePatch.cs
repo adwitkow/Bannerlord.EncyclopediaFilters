@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.EncyclopediaFilters.Comparers.ClanComparers;
+using HarmonyLib;
 using HarmonyLib.PatchBuilder;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,9 @@ public static class DefaultEncyclopediaClanPagePatch
     {
         harmony.Patch<DefaultEncyclopediaClanPage>()
             .Method("InitializeFilterItems")
-                .Postfix(InitializeFilterItemsPostfix);
+                .Postfix(InitializeFilterItemsPostfix)
+            .Method("InitializeSortControllers")
+                .Postfix(InitializeSortControllersPostfix);
     }
 
     public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
@@ -28,6 +31,21 @@ public static class DefaultEncyclopediaClanPagePatch
         AddKingdomGroup(groups);
 
         __result = groups;
+    }
+
+    public static void InitializeSortControllersPostfix(ref IEnumerable<EncyclopediaSortController> __result)
+    {
+        var controllers = (List<EncyclopediaSortController>)__result;
+
+        AddClanLeaderRelationSortController(controllers);
+
+        __result = controllers;
+    }
+
+    private static void AddClanLeaderRelationSortController(List<EncyclopediaSortController> controllers)
+    {
+        var title = GameTexts.FindText("str_tooltip_label_relation");
+        controllers.Add(new EncyclopediaSortController(title, new ClanRelationComparer()));
     }
 
     private static void AddKingdomGroup(List<EncyclopediaFilterGroup> groups)
