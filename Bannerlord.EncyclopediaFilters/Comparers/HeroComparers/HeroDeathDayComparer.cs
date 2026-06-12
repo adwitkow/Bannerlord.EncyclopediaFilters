@@ -1,22 +1,21 @@
 ﻿using TaleWorlds.CampaignSystem;
 
-namespace Bannerlord.EncyclopediaFilters.Comparers.HeroComparers
+namespace Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
+
+public sealed class HeroDeathDayComparer : HeroComparerBase
 {
-    public sealed class HeroDeathDayComparer : HeroComparerBase
+    protected override int CompareHeroes(Hero left, Hero right)
     {
-        protected override int CompareHeroes(Hero left, Hero right)
+        return left.DeathDay.CompareTo(right.DeathDay);
+    }
+
+    protected override string GetComparedValueText(Hero hero)
+    {
+        if (hero.IsAlive)
         {
-            return left.DeathDay.CompareTo(right.DeathDay);
+            return _emptyValue.ToString();
         }
 
-        protected override string GetComparedValueText(Hero hero)
-        {
-            if (hero.IsAlive)
-            {
-                return _emptyValue.ToString();
-            }
-
-            return hero.DeathDay.ToString();
-        }
+        return hero.DeathDay.ToString();
     }
 }

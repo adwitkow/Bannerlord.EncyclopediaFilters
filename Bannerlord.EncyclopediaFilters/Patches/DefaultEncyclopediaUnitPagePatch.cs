@@ -10,73 +10,72 @@ using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
-namespace Bannerlord.EncyclopediaFilters.Patches
+namespace Bannerlord.EncyclopediaFilters.Patches;
+
+public static class DefaultEncyclopediaUnitPagePatch
 {
-    public static class DefaultEncyclopediaUnitPagePatch
+    public static void Patch(Harmony harmony)
     {
-        public static void Patch(Harmony harmony)
+        harmony.Patch<DefaultEncyclopediaUnitPage>()
+            .Method("InitializeFilterItems")
+                .Postfix(InitializeFilterItemsPostfix);
+    }
+
+    private static void InitializeFilterItemsPostfix(ref DefaultEncyclopediaUnitPage __instance, ref IEnumerable<EncyclopediaFilterGroup> __result)
+    {
+        var groups = (List<EncyclopediaFilterGroup>)__result;
+        var instance = __instance;
+
+        AddWeaponTypes(instance, groups);
+
+        __result = groups;
+    }
+
+    private static void AddWeaponTypes(DefaultEncyclopediaUnitPage instance, List<EncyclopediaFilterGroup> groups)
+    {
+        var weaponTypes = Enum.GetValues(typeof(WeaponClass))
+            .Cast<WeaponClass>()
+            .Except(new[] { WeaponClass.Arrow, WeaponClass.Bolt })
+            .ToList();
+
+        var validWeaponTypes = FindValidWeaponTypes(instance, weaponTypes);
+        weaponTypes.RemoveAll(type => !validWeaponTypes.Contains(type));
+
+        var translationMap = weaponTypes.ToDictionary(type => type, type => GetWeaponTypeTranslation(type));
+
+        var weaponTypeFilters = translationMap.Select(pair =>
         {
-            harmony.Patch<DefaultEncyclopediaUnitPage>()
-                .Method("InitializeFilterItems")
-                    .Postfix(InitializeFilterItemsPostfix);
-        }
+            var type = pair.Key;
+            var textObject = pair.Value;
+            return CreateFilterItem<CharacterObject>(textObject, troop => troop.Equipment.HasWeaponOfClass(type));
+        }).Reverse();
 
-        private static void InitializeFilterItemsPostfix(ref DefaultEncyclopediaUnitPage __instance, ref IEnumerable<EncyclopediaFilterGroup> __result)
-        {
-            var groups = (List<EncyclopediaFilterGroup>)__result;
-            var instance = __instance;
+        var weaponFilterGroupname = GameTexts.FindText("str_inventory_category_tooltip", 3.ToString());
+        groups.Add(CreateFilterGroup(weaponFilterGroupname, weaponTypeFilters));
+    }
 
-            AddWeaponTypes(instance, groups);
-
-            __result = groups;
-        }
-
-        private static void AddWeaponTypes(DefaultEncyclopediaUnitPage instance, List<EncyclopediaFilterGroup> groups)
-        {
-            var weaponTypes = Enum.GetValues(typeof(WeaponClass))
-                .Cast<WeaponClass>()
-                .Except(new[] { WeaponClass.Arrow, WeaponClass.Bolt })
-                .ToList();
-
-            var validWeaponTypes = FindValidWeaponTypes(instance, weaponTypes);
-            weaponTypes.RemoveAll(type => !validWeaponTypes.Contains(type));
-
-            var translationMap = weaponTypes.ToDictionary(type => type, type => GetWeaponTypeTranslation(type));
-
-            var weaponTypeFilters = translationMap.Select(pair =>
-            {
-                var type = pair.Key;
-                var textObject = pair.Value;
-                return CreateFilterItem<CharacterObject>(textObject, troop => troop.Equipment.HasWeaponOfClass(type));
-            }).Reverse();
-
-            var weaponFilterGroupname = GameTexts.FindText("str_inventory_category_tooltip", 3.ToString());
-            groups.Add(CreateFilterGroup(weaponFilterGroupname, weaponTypeFilters));
-        }
-
-        private static TextObject GetWeaponTypeTranslation(WeaponClass type)
-        {
+    private static TextObject GetWeaponTypeTranslation(WeaponClass type)
+    {
 #if LOWER_THAN_1_3
-            return GameTexts.FindText("str_inventory_weapon", ((int)type).ToString());
+        return GameTexts.FindText("str_inventory_weapon", ((int)type).ToString());
 #else
-            return GameTexts.FindText("str_inventory_weapon", type.ToString());
+        return GameTexts.FindText("str_inventory_weapon", type.ToString());
 #endif
-        }
+    }
 
-        private static ISet<WeaponClass> FindValidWeaponTypes(DefaultEncyclopediaUnitPage instance, ICollection<WeaponClass> weaponTypes)
+    private static ISet<WeaponClass> FindValidWeaponTypes(DefaultEncyclopediaUnitPage instance, ICollection<WeaponClass> weaponTypes)
+    {
+        var validWeaponTypes = new HashSet<WeaponClass>();
+        var validCharacters = CharacterObject.All.Where(character => instance.IsValidEncyclopediaItem(character)).ToList();
+        foreach (var character in validCharacters)
         {
-            var validWeaponTypes = new HashSet<WeaponClass>();
-            var validCharacters = CharacterObject.All.Where(character => instance.IsValidEncyclopediaItem(character)).ToList();
-            foreach (var character in validCharacters)
+            var usedWeaponTypes = weaponTypes.Where(weaponType => character.Equipment.HasWeaponOfClass(weaponType));
+            foreach (var weaponType in usedWeaponTypes)
             {
-                var usedWeaponTypes = weaponTypes.Where(weaponType => character.Equipment.HasWeaponOfClass(weaponType));
-                foreach (var weaponType in usedWeaponTypes)
-                {
-                    validWeaponTypes.Add(weaponType);
-                }
+                validWeaponTypes.Add(weaponType);
             }
-
-            return validWeaponTypes;
         }
+
+        return validWeaponTypes;
     }
 }

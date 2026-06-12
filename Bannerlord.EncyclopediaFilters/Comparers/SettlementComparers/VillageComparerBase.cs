@@ -4,72 +4,52 @@ using TaleWorlds.CampaignSystem.Encyclopedia;
 using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace Bannerlord.EncyclopediaFilters.Comparers.SettlementComparers
-{
-    public abstract class VillageComparerBase : DefaultEncyclopediaSettlementPage.EncyclopediaListSettlementComparer
-    {
-        public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
-        {
-            return CompareVillages(x, y, CompareVillages);
-        }
+namespace Bannerlord.EncyclopediaFilters.Comparers.SettlementComparers;
 
-        public override string GetComparedValueText(EncyclopediaListItem item)
+public abstract class VillageComparerBase : DefaultEncyclopediaSettlementPage.EncyclopediaListSettlementComparer
+{
+    public override int Compare(EncyclopediaListItem x, EncyclopediaListItem y)
+    {
+        return CompareVillages(x, y, CompareVillages);
+    }
+
+    public override string GetComparedValueText(EncyclopediaListItem item)
+    {
+        if (item.Object is not Settlement settlement)
         {
-            if (item.Object is not Settlement settlement)
-            {
-                return _emptyValue.ToString();
-            }
+            return _emptyValue.ToString();
+        }
 
 #if !LOWER_THAN_1_1
-            if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(settlement))
-            {
-                return _missingValue.ToString();
-            }
+        if (!Campaign.Current.Models.InformationRestrictionModel.DoesPlayerKnowDetailsOf(settlement))
+        {
+            return _missingValue.ToString();
+        }
 #endif
 
-            if (!settlement.IsVillage)
-            {
-                return _emptyValue.ToString();
-            }
-
-            return GetComparedValueText(settlement.Village);
+        if (!settlement.IsVillage)
+        {
+            return _emptyValue.ToString();
         }
 
-        protected abstract int CompareVillages(Village left, Village right);
+        return GetComparedValueText(settlement.Village);
+    }
 
-        protected abstract string GetComparedValueText(Village village);
+    protected abstract int CompareVillages(Village left, Village right);
 
-        private int CompareVillages(EncyclopediaListItem x, EncyclopediaListItem y, Func<Village, Village, int> comparison)
+    protected abstract string GetComparedValueText(Village village);
+
+    private int CompareVillages(EncyclopediaListItem x, EncyclopediaListItem y, Func<Village, Village, int> comparison)
+    {
+        if (x.Object is not Settlement leftSettlement || y.Object is not Settlement rightSettlement)
         {
-            if (x.Object is not Settlement leftSettlement || y.Object is not Settlement rightSettlement)
-            {
-                return 0;
-            }
+            return 0;
+        }
 
-            var ascendingMultiplier = base.IsAscending ? 1 : -1;
+        var ascendingMultiplier = base.IsAscending ? 1 : -1;
 
-            if (CompareVisibility(leftSettlement, rightSettlement, out int result))
-            {
-                if (result == 0)
-                {
-                    return base.ResolveEquality(x, y);
-                }
-
-                return result * ascendingMultiplier;
-            }
-
-            result = leftSettlement.IsVillage.CompareTo(rightSettlement.IsVillage);
-            if (result != 0)
-            {
-                return -result;
-            }
-
-            if (!leftSettlement.IsVillage && !rightSettlement.IsVillage)
-            {
-                return base.ResolveEquality(x, y);
-            }
-
-            result = comparison(leftSettlement.Village, rightSettlement.Village);
+        if (CompareVisibility(leftSettlement, rightSettlement, out int result))
+        {
             if (result == 0)
             {
                 return base.ResolveEquality(x, y);
@@ -77,5 +57,24 @@ namespace Bannerlord.EncyclopediaFilters.Comparers.SettlementComparers
 
             return result * ascendingMultiplier;
         }
+
+        result = leftSettlement.IsVillage.CompareTo(rightSettlement.IsVillage);
+        if (result != 0)
+        {
+            return -result;
+        }
+
+        if (!leftSettlement.IsVillage && !rightSettlement.IsVillage)
+        {
+            return base.ResolveEquality(x, y);
+        }
+
+        result = comparison(leftSettlement.Village, rightSettlement.Village);
+        if (result == 0)
+        {
+            return base.ResolveEquality(x, y);
+        }
+
+        return result * ascendingMultiplier;
     }
 }
