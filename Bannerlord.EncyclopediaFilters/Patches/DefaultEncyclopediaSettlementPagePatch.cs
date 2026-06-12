@@ -1,6 +1,6 @@
 ﻿using Bannerlord.EncyclopediaFilters.Comparers.SettlementComparers;
 using HarmonyLib;
-using HarmonyLib.BUTR.Extensions;
+using HarmonyLib.PatchBuilder;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -17,10 +17,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
     {
         public static void Patch(Harmony harmony)
         {
-            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPage), "InitializeFilterItems"),
-                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPagePatch), nameof(InitializeFilterItemsPostfix)));
-            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPage), "InitializeSortControllers"),
-                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaSettlementPagePatch), nameof(InitializeSortControllersPostfix)));
+            harmony.Patch<DefaultEncyclopediaSettlementPage>()
+                .Method("InitializeFilterItems")
+                    .Postfix(InitializeFilterItemsPostfix)
+                .Method("InitializeSortControllers")
+                    .Postfix(InitializeSortControllersPostfix);
         }
 
         public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)

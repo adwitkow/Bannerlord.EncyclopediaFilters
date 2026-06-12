@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
+using HarmonyLib;
+using HarmonyLib.PatchBuilder;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
-using HarmonyLib;
-using HarmonyLib.BUTR.Extensions;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Encyclopedia;
@@ -36,10 +36,11 @@ namespace Bannerlord.EncyclopediaFilters.Patches
 
         public static void Patch(Harmony harmony)
         {
-            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaHeroPage), "InitializeFilterItems"),
-                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaHeroPagePatch), nameof(InitializeFilterItemsPostfix)));
-            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaHeroPage), "InitializeSortControllers"),
-                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaHeroPagePatch), nameof(InitializeSortControllersPostfix)));
+            harmony.Patch<DefaultEncyclopediaHeroPage>()
+                .Method("InitializeFilterItems")
+                    .Postfix(InitializeFilterItemsPostfix)
+                .Method("InitializeSortControllers")
+                    .Postfix(InitializeSortControllersPostfix);
         }
 
         public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)

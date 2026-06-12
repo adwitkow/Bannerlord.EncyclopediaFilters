@@ -1,12 +1,12 @@
-﻿using HarmonyLib.BUTR.Extensions;
-using HarmonyLib;
-using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
-using System.Collections.Generic;
-using TaleWorlds.CampaignSystem.Encyclopedia;
+﻿using HarmonyLib;
+using HarmonyLib.PatchBuilder;
 using System;
-using TaleWorlds.Core;
+using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Encyclopedia;
+using TaleWorlds.CampaignSystem.Encyclopedia.Pages;
+using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using static Bannerlord.EncyclopediaFilters.EncyclopediaHelper;
 
@@ -16,8 +16,9 @@ namespace Bannerlord.EncyclopediaFilters.Patches
     {
         public static void Patch(Harmony harmony)
         {
-            harmony.TryPatch(AccessTools2.Method(typeof(DefaultEncyclopediaUnitPage), "InitializeFilterItems"),
-                postfix: AccessTools2.Method(typeof(DefaultEncyclopediaUnitPagePatch), nameof(InitializeFilterItemsPostfix)));
+            harmony.Patch<DefaultEncyclopediaUnitPage>()
+                .Method("InitializeFilterItems")
+                    .Postfix(InitializeFilterItemsPostfix);
         }
 
         private static void InitializeFilterItemsPostfix(ref DefaultEncyclopediaUnitPage __instance, ref IEnumerable<EncyclopediaFilterGroup> __result)
