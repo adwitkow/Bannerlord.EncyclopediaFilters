@@ -1,24 +1,24 @@
-﻿<Project Sdk="Microsoft.NET.Sdk;Bannerlord.BuildResourcesLite.Sdk/1.2.0.35">
+﻿<Project Sdk="Microsoft.NET.Sdk;Bannerlord.BuildResourcesLite.Sdk/1.2.0.36">
 
-	<PropertyGroup>
+  <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Harmony.PatchBuilder" Version="1.0.0.4" />
-		<PackageReference Include="Lib.Harmony" Version="2.4.2" IncludeAssets="compile" />
-		<PackageReference Include="Harmony.Extensions" Version="3.2.0.77">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Bannerlord.ModuleLoader.Injector" Version="1.0.1.50">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="Bannerlord.ModuleManager.Source" Version="6.0.247">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-	</ItemGroup>
-  
+  <ItemGroup>
+    <PackageReference Include="Harmony.PatchBuilder" Version="1.1.0.5" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.2" IncludeAssets="compile" />
+    <PackageReference Include="Harmony.Extensions" Version="3.2.0.77">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Bannerlord.ModuleLoader.Injector" Version="1.0.1.50">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Bannerlord.ModuleManager.Source" Version="6.0.247">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>

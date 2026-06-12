@@ -15,6 +15,8 @@ public class SubModule : MBSubModuleBase
         DefaultEncyclopediaUnitPagePatch.Patch(_harmony);
         DefaultEncyclopediaSettlementPagePatch.Patch(_harmony);
 
+        TooltipRefresherCollectionPatch.Patch(_harmony);
+
         base.OnSubModuleLoad();
     }
 }
