@@ -149,6 +149,7 @@ public sealed class DividerPositionExtension : PrefabExtensionSetAttributePatch
 // The 'Sort By' dropdown moves up next to the path bar so the title row has room for the columns.
 // Gauntlet only hit-tests children inside their parent's area, so a negative margin would leave it unclickable.
 // Instead the original is hidden and a copy lives in a container the size of the page, raised by 81.
+// The search results open under the page's layer, so the copy hides while they are shown.
 [PrefabExtension("EncyclopediaItemList", "descendant::ListPanel[@Id='EncyclopediaListSortController' and @HorizontalAlignment='Right']")]
 public sealed class SortDropdownHideExtension : PrefabExtensionSetAttributePatch
 {
@@ -169,7 +170,7 @@ public sealed class SortDropdownRaisedExtension : PrefabExtensionInsertPatch
     public string GetContent() => @"
 <Widget DoNotAcceptEvents=""true"" WidthSizePolicy=""Fixed"" HeightSizePolicy=""Fixed"" SuggestedWidth=""!Encyclopedia.Width"" SuggestedHeight=""!Encyclopedia.Height"" HorizontalAlignment=""Center"" VerticalAlignment=""Center"" MarginTop=""-7"">
   <Children>
-    <ListPanel Id=""EncyclopediaListSortController"" DataSource=""{SortController}"" WidthSizePolicy=""CoverChildren"" HeightSizePolicy=""CoverChildren"" HorizontalAlignment=""Right"" MarginTop=""10"" MarginRight=""0"" StackLayout.LayoutMethod=""HorizontalRightToLeft"">
+    <ListPanel Id=""EncyclopediaListSortController"" DataSource=""{SortController}"" IsVisible=""@IsSortDropdownVisible"" WidthSizePolicy=""CoverChildren"" HeightSizePolicy=""CoverChildren"" HorizontalAlignment=""Right"" MarginTop=""10"" MarginRight=""0"" StackLayout.LayoutMethod=""HorizontalRightToLeft"">
       <Children>
         <Standard.DropdownWithHorizontalControl Id=""EncyclopediaSortButton"" Parameter.IsFlatDesign=""true"" Parameter.ShowNextAndPrevious=""false"" Parameter.IsCustomWidth=""true"" Parameter.CustomWidth=""160"" Parameter.SelectorDataSource=""{SortSelection}"" Parameter.OnDropdownClick=""ExecuteOnDropdownActivated"" UpdateChildrenStates=""true"" ExtendCursorAreaRight=""-20"" GamepadNavigationIndex=""0"">
           <Children>
@@ -190,4 +191,44 @@ public sealed class SortDropdownHighlightPositionExtension : PrefabExtensionSetA
     {
         new Attribute("PositionYOffset", "-70"),
     };
+}
+
+// The stand-in dropdown on the navigation bar, shown under the search results while the page's copy hides.
+// It repeats the page's layout (same size, alignment and offsets, from the same brushes), so it lands in the same spot.
+[PrefabExtension("EncyclopediaBar", "descendant::Constants")]
+public sealed class SortStandInConstantsExtension : PrefabExtensionInsertPatch
+{
+    public override InsertType Type => InsertType.Child;
+
+    [PrefabExtensionText(true)]
+    public string GetContent() => @"
+<DiscardedRoot>
+  <Constant Name=""EFE.Canvas.Width"" BrushName=""Encyclopedia.Canvas"" BrushLayer=""Default"" BrushValueType=""Width"" />
+  <Constant Name=""EFE.Canvas.Height"" BrushName=""Encyclopedia.Canvas"" BrushLayer=""Default"" BrushValueType=""Height"" />
+  <Constant Name=""EFE.Page.Width"" Value=""!EFE.Canvas.Width"" Additive=""-35"" />
+  <Constant Name=""EFE.Page.Height"" Value=""!EFE.Canvas.Height"" Additive=""-198"" />
+</DiscardedRoot>";
+}
+
+[PrefabExtension("EncyclopediaBar", "descendant::NavigationScopeTargeter[@ScopeID='EncyclopediaSearchButtonScope']")]
+public sealed class SortStandInExtension : PrefabExtensionInsertPatch
+{
+    public override InsertType Type => InsertType.Prepend;
+
+    [PrefabExtensionText]
+    public string GetContent() => @"
+<Widget DoNotAcceptEvents=""true"" DoNotPassEventsToChildren=""true"" WidthSizePolicy=""Fixed"" HeightSizePolicy=""Fixed"" SuggestedWidth=""!EFE.Page.Width"" SuggestedHeight=""!EFE.Page.Height"" HorizontalAlignment=""Center"" VerticalAlignment=""Center"" MarginTop=""-7"" IsVisible=""@IsSortStandInVisible"">
+  <Children>
+    <ListPanel DataSource=""{CurrentSortController}"" DoNotAcceptEvents=""true"" DoNotPassEventsToChildren=""true"" WidthSizePolicy=""CoverChildren"" HeightSizePolicy=""CoverChildren"" HorizontalAlignment=""Right"" MarginTop=""10"" MarginRight=""0"" StackLayout.LayoutMethod=""HorizontalRightToLeft"">
+      <Children>
+        <Standard.DropdownWithHorizontalControl Parameter.IsFlatDesign=""true"" Parameter.ShowNextAndPrevious=""false"" Parameter.IsCustomWidth=""true"" Parameter.CustomWidth=""160"" Parameter.SelectorDataSource=""{SortSelection}"" UpdateChildrenStates=""true"" DoNotAcceptEvents=""true"">
+          <Children>
+            <BrushWidget DoNotAcceptEvents=""true"" WidthSizePolicy=""Fixed"" HeightSizePolicy=""Fixed"" SuggestedWidth=""20"" SuggestedHeight=""20"" HorizontalAlignment=""Right"" PositionXOffset=""-20"" VerticalAlignment=""Center"" Brush=""Encyclopedia.Dropdown.Arrow"" />
+          </Children>
+        </Standard.DropdownWithHorizontalControl>
+        <TextWidget WidthSizePolicy=""CoverChildren"" HeightSizePolicy=""CoverChildren"" VerticalAlignment=""Center"" MarginTop=""5"" MarginRight=""10"" Brush=""Standard.DropdownItem.Text"" Text=""@SortByLabel"" />
+      </Children>
+    </ListPanel>
+  </Children>
+</Widget>";
 }

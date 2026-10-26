@@ -138,7 +138,11 @@ public sealed class SortControllerColumnsMixin : BaseViewModelMixin<Encyclopedia
     {
         Mixins.Remove(vm);
         Mixins.Add(vm, this);
+        SearchState.Changed += OnSearchStateChanged;
     }
+
+    [DataSourceProperty]
+    public bool IsSortDropdownVisible => !SearchState.IsSearchResultsShown;
 
     [DataSourceProperty]
     public float ColumnNameHeaderWidth => ColumnLayout.GetNameWidth(State) - ColumnLayout.HeaderNameOffset;
@@ -251,6 +255,12 @@ public sealed class SortControllerColumnsMixin : BaseViewModelMixin<Encyclopedia
 
     public override void OnFinalize()
     {
+        SearchState.Changed -= OnSearchStateChanged;
+        if (ViewModel is not null)
+        {
+            SearchState.OnSortControllerFinalized(ViewModel);
+        }
+
         if (ViewModel is not null)
         {
             Mixins.Remove(ViewModel);
@@ -293,6 +303,11 @@ public sealed class SortControllerColumnsMixin : BaseViewModelMixin<Encyclopedia
     {
         var state = State;
         return state is not null && index < state.Columns.Count;
+    }
+
+    private void OnSearchStateChanged()
+    {
+        OnPropertyChanged(nameof(IsSortDropdownVisible));
     }
 
     private string GetHeader(int index)
