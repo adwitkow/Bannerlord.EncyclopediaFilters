@@ -2,7 +2,6 @@
 using HarmonyLib;
 using System;
 using TaleWorlds.CampaignSystem.Encyclopedia;
-using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.List;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -98,15 +97,29 @@ internal static class ColumnLayout
 /// </summary>
 internal static class ColumnController
 {
-    private static readonly AccessTools.FieldRef<EncyclopediaListSortControllerVM, EncyclopediaPage> PageField =
-        AccessTools.FieldRefAccess<EncyclopediaListSortControllerVM, EncyclopediaPage>("_page");
+    // Private fields, looked up by name: if a game version names them differently, the columns stay off.
+    private static readonly AccessTools.FieldRef<EncyclopediaListSortControllerVM, EncyclopediaPage>? PageField =
+        CreateFieldRef<EncyclopediaPage>("_page");
 
-    private static readonly AccessTools.FieldRef<EncyclopediaListSortControllerVM, MBBindingList<EncyclopediaListItemVM>> ItemsField =
-        AccessTools.FieldRefAccess<EncyclopediaListSortControllerVM, MBBindingList<EncyclopediaListItemVM>>("_items");
+    private static readonly AccessTools.FieldRef<EncyclopediaListSortControllerVM, MBBindingList<EncyclopediaListItemVM>>? ItemsField =
+        CreateFieldRef<MBBindingList<EncyclopediaListItemVM>>("_items");
+
+    // Same values as CampaignUIHelper.SortState, which older game versions don't have.
+    private enum SortState
+    {
+        Default,
+        Ascending,
+        Descending,
+    }
 
     public static HeroListState? GetState(EncyclopediaListSortControllerVM? sortController)
     {
-        return sortController is null ? null : HeroListState.Get(PageField(sortController));
+        if (sortController is null || PageField is null || ItemsField is null)
+        {
+            return null;
+        }
+
+        return HeroListState.Get(PageField(sortController));
     }
 
     /// <summary>A new list opens unsorted; the 'Sort By' selection is applied right after.</summary>
@@ -186,7 +199,7 @@ internal static class ColumnController
         }
 
         Sort(sortController, comparer);
-        sortController.AlternativeSortState = (int)CampaignUIHelper.SortState.Default;
+        sortController.AlternativeSortState = (int)SortState.Default;
         Refresh(sortController);
     }
 
@@ -194,16 +207,16 @@ internal static class ColumnController
     {
         if (state is null || index >= state.Columns.Count || state.Columns[index].Comparer != state.SortedComparer)
         {
-            return (int)CampaignUIHelper.SortState.Default;
+            return (int)SortState.Default;
         }
 
-        return (int)(state.SortedComparer!.IsAscending ? CampaignUIHelper.SortState.Ascending : CampaignUIHelper.SortState.Descending);
+        return (int)(state.SortedComparer!.IsAscending ? SortState.Ascending : SortState.Descending);
     }
 
     private static void Sort(EncyclopediaListSortControllerVM sortController, EncyclopediaListItemComparerBase comparer)
     {
-        var listComparer = new EncyclopediaListItemComparer(new EncyclopediaSortController(TextObject.GetEmpty(), comparer));
-        ItemsField(sortController).Sort(listComparer);
+        var listComparer = new EncyclopediaListItemComparer(new EncyclopediaSortController(new TextObject(string.Empty), comparer));
+        ItemsField!(sortController).Sort(listComparer);
     }
 
     private static void SortByPrimary(EncyclopediaListSortControllerVM sortController)
@@ -214,14 +227,22 @@ internal static class ColumnController
             return;
         }
 
-        ItemsField(sortController).Sort(comparer);
+        ItemsField!(sortController).Sort(comparer);
         var isAscending = comparer.SortController.Comparer.IsAscending;
-        sortController.AlternativeSortState = (int)(isAscending ? CampaignUIHelper.SortState.Ascending : CampaignUIHelper.SortState.Descending);
+        sortController.AlternativeSortState = (int)(isAscending ? SortState.Ascending : SortState.Descending);
     }
 
     private static void Refresh(EncyclopediaListSortControllerVM sortController)
     {
         SortControllerColumnsMixin.Refresh(sortController);
-        ListItemColumnsMixin.RefreshAll(ItemsField(sortController));
+        ListItemColumnsMixin.RefreshAll(ItemsField!(sortController));
+    }
+
+    private static AccessTools.FieldRef<EncyclopediaListSortControllerVM, T>? CreateFieldRef<T>(string name)
+    {
+        var field = AccessTools.Field(typeof(EncyclopediaListSortControllerVM), name);
+        return field is not null && typeof(T).IsAssignableFrom(field.FieldType)
+            ? AccessTools.FieldRefAccess<EncyclopediaListSortControllerVM, T>(field)
+            : null;
     }
 }

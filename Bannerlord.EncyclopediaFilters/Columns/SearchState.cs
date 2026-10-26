@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
+using System.Reflection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.List;
 
@@ -12,13 +14,20 @@ namespace Bannerlord.EncyclopediaFilters.Columns;
 /// </summary>
 internal static class SearchState
 {
+    // Looked up by name: game versions before 1.1.0 don't have it, and the dropdown then never hides.
+    public static readonly PropertyInfo? SearchResultsShownProperty =
+        AccessTools.Property(typeof(EncyclopediaNavigatorVM), "IsSearchResultsShown");
+
     private static WeakReference<EncyclopediaNavigatorVM>? navigator;
     private static WeakReference<EncyclopediaListSortControllerVM>? sortController;
 
     public static event Action? Changed;
 
     public static bool IsSearchResultsShown =>
-        navigator is not null && navigator.TryGetTarget(out var current) && current.IsSearchResultsShown;
+        SearchResultsShownProperty is not null
+        && navigator is not null
+        && navigator.TryGetTarget(out var current)
+        && SearchResultsShownProperty.GetValue(current) is true;
 
     public static EncyclopediaListSortControllerVM? CurrentSortController =>
         sortController is not null && sortController.TryGetTarget(out var current) ? current : null;

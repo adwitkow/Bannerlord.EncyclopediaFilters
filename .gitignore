@@ -364,3 +364,5 @@ FodyWeavers.xsd
 # Local build staging and machine-specific deploy settings
 dist/
 build/*.local.props
+# Local-only tools (reference files on this machine; CI builds every .csproj)
+tools/

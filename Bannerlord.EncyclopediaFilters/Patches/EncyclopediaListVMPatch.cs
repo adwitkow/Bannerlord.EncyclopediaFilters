@@ -33,8 +33,11 @@ public static class EncyclopediaListVMPatch
         var navigatorConstructor = AccessTools.GetDeclaredConstructors(typeof(EncyclopediaNavigatorVM)).First();
         harmony.Patch(navigatorConstructor, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(NavigatorConstructorPostfix)));
 
-        var searchResultsShownSetter = AccessTools.PropertySetter(typeof(EncyclopediaNavigatorVM), nameof(EncyclopediaNavigatorVM.IsSearchResultsShown));
-        harmony.Patch(searchResultsShownSetter, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(SearchResultsShownPostfix)));
+        var searchResultsShownSetter = SearchState.SearchResultsShownProperty?.GetSetMethod();
+        if (searchResultsShownSetter is not null)
+        {
+            harmony.Patch(searchResultsShownSetter, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(SearchResultsShownPostfix)));
+        }
     }
 
     public static void UpdateFiltersPostfix(EncyclopediaListVM __instance, EncyclopediaListFilterVM filterVM)
