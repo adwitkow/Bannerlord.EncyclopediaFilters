@@ -1,7 +1,9 @@
 ﻿using Bannerlord.EncyclopediaFilters.Columns;
 using HarmonyLib;
 using HarmonyLib.PatchBuilder;
+using System.Linq;
 using TaleWorlds.CampaignSystem.Encyclopedia;
+using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.List;
 using TaleWorlds.Library;
 
@@ -27,6 +29,12 @@ public static class EncyclopediaListVMPatch
             typeof(EncyclopediaListSortControllerVM),
             new[] { typeof(EncyclopediaPage), typeof(MBBindingList<EncyclopediaListItemVM>) });
         harmony.Patch(constructor, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(SortControllerConstructorPostfix)));
+
+        var navigatorConstructor = AccessTools.GetDeclaredConstructors(typeof(EncyclopediaNavigatorVM)).First();
+        harmony.Patch(navigatorConstructor, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(NavigatorConstructorPostfix)));
+
+        var searchResultsShownSetter = AccessTools.PropertySetter(typeof(EncyclopediaNavigatorVM), nameof(EncyclopediaNavigatorVM.IsSearchResultsShown));
+        harmony.Patch(searchResultsShownSetter, postfix: new HarmonyMethod(typeof(EncyclopediaListVMPatch), nameof(SearchResultsShownPostfix)));
     }
 
     public static void UpdateFiltersPostfix(EncyclopediaListVM __instance, EncyclopediaListFilterVM filterVM)
@@ -45,5 +53,16 @@ public static class EncyclopediaListVMPatch
     public static void SortControllerConstructorPostfix(EncyclopediaListSortControllerVM __instance)
     {
         ColumnController.OnListCreated(__instance);
+        SearchState.OnSortControllerCreated(__instance);
+    }
+
+    public static void NavigatorConstructorPostfix(EncyclopediaNavigatorVM __instance)
+    {
+        SearchState.OnNavigatorCreated(__instance);
+    }
+
+    public static void SearchResultsShownPostfix(EncyclopediaNavigatorVM __instance)
+    {
+        SearchState.OnSearchResultsShownChanged(__instance);
     }
 }
