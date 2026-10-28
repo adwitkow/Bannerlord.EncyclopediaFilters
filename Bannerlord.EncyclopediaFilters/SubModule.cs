@@ -1,28 +1,40 @@
 ﻿using Bannerlord.EncyclopediaFilters.Patches;
 using Bannerlord.UIExtenderEx;
 using HarmonyLib;
+using System.Runtime.CompilerServices;
+using TaleWorlds.ModuleManager;
 using TaleWorlds.MountAndBlade;
 
 namespace Bannerlord.EncyclopediaFilters;
 
 public class SubModule : MBSubModuleBase
 {
-    private readonly Harmony _harmony = new("me.adwitkow.encyclopedia");
-    private readonly UIExtender _extender = UIExtender.Create("Bannerlord.EncyclopediaFilters");
-
     protected override void OnSubModuleLoad()
     {
-        DefaultEncyclopediaHeroPagePatch.Patch(_harmony);
-        DefaultEncyclopediaClanPagePatch.Patch(_harmony);
-        DefaultEncyclopediaUnitPagePatch.Patch(_harmony);
-        DefaultEncyclopediaSettlementPagePatch.Patch(_harmony);
-        EncyclopediaListVMPatch.Patch(_harmony);
+        var moduleId = typeof(SubModule).Namespace;
 
-        TooltipRefresherCollectionPatch.Patch(_harmony);
+        var harmony = new Harmony(moduleId);
+        DefaultEncyclopediaHeroPagePatch.Patch(harmony);
+        DefaultEncyclopediaClanPagePatch.Patch(harmony);
+        DefaultEncyclopediaUnitPagePatch.Patch(harmony);
+        DefaultEncyclopediaSettlementPagePatch.Patch(harmony);
 
-        _extender.Register(typeof(SubModule).Assembly);
-        _extender.Enable();
+        TooltipRefresherCollectionPatch.Patch(harmony);
+
+        if (ModuleHelper.IsModuleActive("Bannerlord.UIExtenderEx"))
+        {
+            EnableUiExtender(moduleId);
+            EncyclopediaListVMPatch.Patch(harmony);
+        }
 
         base.OnSubModuleLoad();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void EnableUiExtender(string moduleId)
+    {
+        var extender = UIExtender.Create(moduleId);
+        extender.Register(typeof(SubModule).Assembly);
+        extender.Enable();
     }
 }
