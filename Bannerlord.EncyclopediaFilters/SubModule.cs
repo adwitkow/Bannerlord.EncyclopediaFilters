@@ -1,6 +1,10 @@
 ﻿using Bannerlord.EncyclopediaFilters.Patches;
 using Bannerlord.UIExtenderEx;
 using HarmonyLib;
+#if LOWER_THAN_1_3
+using System;
+using System.Linq;
+#endif
 using System.Runtime.CompilerServices;
 using TaleWorlds.ModuleManager;
 using TaleWorlds.MountAndBlade;
@@ -21,7 +25,7 @@ public class SubModule : MBSubModuleBase
 
         TooltipRefresherCollectionPatch.Patch(harmony);
 
-        if (ModuleHelper.IsModuleActive("Bannerlord.UIExtenderEx"))
+        if (IsModuleActive("Bannerlord.UIExtenderEx"))
         {
             EnableUiExtender(moduleId);
             EncyclopediaListVMPatch.Patch(harmony);
@@ -36,5 +40,15 @@ public class SubModule : MBSubModuleBase
         var extender = UIExtender.Create(moduleId);
         extender.Register(typeof(SubModule).Assembly);
         extender.Enable();
+    }
+
+    private static bool IsModuleActive(string moduleId)
+    {
+#if LOWER_THAN_1_3
+        return TaleWorlds.Engine.Utilities.GetModulesNames()
+             .Any(m => string.Equals(m, moduleId, StringComparison.OrdinalIgnoreCase));
+#else
+        return ModuleHelper.IsModuleActive(moduleId);
+#endif
     }
 }
