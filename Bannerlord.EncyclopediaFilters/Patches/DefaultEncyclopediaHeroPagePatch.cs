@@ -1,4 +1,5 @@
-﻿using Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
+﻿using Bannerlord.EncyclopediaFilters.Columns;
+using Bannerlord.EncyclopediaFilters.Comparers.HeroComparers;
 using HarmonyLib;
 using HarmonyLib.PatchBuilder;
 using System;
@@ -43,14 +44,16 @@ public static class DefaultEncyclopediaHeroPagePatch
                 .Postfix(InitializeSortControllersPostfix);
     }
 
-    public static void InitializeFilterItemsPostfix(ref IEnumerable<EncyclopediaFilterGroup> __result)
+    public static void InitializeFilterItemsPostfix(DefaultEncyclopediaHeroPage __instance, ref IEnumerable<EncyclopediaFilterGroup> __result)
     {
         var groups = (List<EncyclopediaFilterGroup>)__result;
+        var state = HeroListState.GetOrCreate(__instance);
 
         AddKingdomFilters(groups);
         AddClanLeaderOccupationFilter(groups);
+        AddFreeWandererOccupationFilter(groups);
         RemoveEmptyCultureFilters(groups);
-        AddSkillFilters(groups);
+        AddSkillFilters(groups, state);
         AddTraitFilters(groups);
 
         __result = groups;
@@ -60,10 +63,10 @@ public static class DefaultEncyclopediaHeroPagePatch
     {
         var controllers = (List<EncyclopediaSortController>)__result;
 
+        // Skills and the score aren't listed here: ticking a skill filter shows it as a column instead.
         AddHeroLevelSortController(controllers);
         AddDeathDaySortController(controllers);
         AddHeroDistanceSortController(controllers);
-        AddSkillSortControllers(controllers);
 
         __result = controllers;
     }
@@ -72,15 +75,6 @@ public static class DefaultEncyclopediaHeroPagePatch
     {
         var title = GameTexts.FindText("str_level");
         controllers.Add(new EncyclopediaSortController(title, new HeroLevelComparer()));
-    }
-
-    private static void AddSkillSortControllers(List<EncyclopediaSortController> controllers)
-    {
-        foreach (var skill in AllSkills())
-        {
-            var controller = new EncyclopediaSortController(skill.Name, new HeroSkillComparer(skill));
-            controllers.Add(controller);
-        }
     }
 
     private static void AddDeathDaySortController(List<EncyclopediaSortController> controllers)
@@ -117,6 +111,20 @@ public static class DefaultEncyclopediaHeroPagePatch
         }
     }
 
+    private static void AddFreeWandererOccupationFilter(List<EncyclopediaFilterGroup> groups)
+    {
+        var occupationTextObject = new TextObject("{=GZxFIeiJ}Occupation");
+        var occupationGroup = groups.FirstOrDefault(group => group.Name.HasSameValue(occupationTextObject));
+        if (occupationGroup is not null)
+        {
+            // Hero.Clan includes CompanionOf, so wanderers hired by the player or by AI lords
+            // (e.g. through Nobles and Wanderers In AI Parties) are left out.
+            var freeWandererTextObject = new TextObject("{=EFE_FreeWanderer}Wanderer (No Clan)");
+            var freeWandererFilter = CreateFilterItem<Hero>(freeWandererTextObject, hero => hero.IsWanderer && hero.Clan == null);
+            occupationGroup.Filters.Add(freeWandererFilter);
+        }
+    }
+
     private static void RemoveEmptyCultureFilters(List<EncyclopediaFilterGroup> groups)
     {
         var cultureTextObject = GameTexts.FindText("str_culture");
@@ -138,12 +146,13 @@ public static class DefaultEncyclopediaHeroPagePatch
         }
     }
 
-    private static void AddSkillFilters(List<EncyclopediaFilterGroup> groups)
+    private static void AddSkillFilters(List<EncyclopediaFilterGroup> groups, HeroListState state)
     {
         var skillsTextObject = GameTexts.FindText("str_skills");
-        var skillFilters = AllSkills().Reverse()
-            .Select(skill => CreateFilterItem<Hero>(skill.Name, hero => hero.GetSkillValue(skill) > 50));
-        var skillGroup = CreateFilterGroup(skillsTextObject, skillFilters);
+        state.SkillFilters.Clear();
+        state.SkillFilters.AddRange(AllSkills().Reverse()
+            .Select(skill => new SkillFilter(skill, CreateFilterItem<Hero>(skill.Name, hero => hero.GetSkillValue(skill) > 50))));
+        var skillGroup = CreateFilterGroup(skillsTextObject, state.SkillFilters.Select(skillFilter => skillFilter.Filter));
 
         groups.Add(skillGroup);
     }
